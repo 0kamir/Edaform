@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Edaform - Descripción Edafológica de Perfiles de Suelo</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e293b">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- SQLite / OGC GeoPackage WASM Library & Preloaded Binary -->
+  <script src="vendor/sql-wasm-binary.js"></script>
+  <script src="vendor/sql-wasm.js"></script>
+  
+  <!-- JSZip Library for Consolidated Project ZIP Package Export -->
+  <script src="vendor/jszip.min.js"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css?v=58">
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <div id="app-container">
+    <!-- Top Navigation & Header Bar -->
+    <header class="bg-slate-900 text-white px-3 py-2 flex items-center justify-between shadow-md z-20 flex-shrink-0 border-b border-slate-800">
+      <!-- Left: Fixed Brand & Title (Always 100% visible and unshrinkable) -->
+      <div class="flex items-center space-x-2.5 flex-shrink-0 pr-3 border-r border-slate-700/60">
+        <div class="w-9 h-9 flex-shrink-0 flex items-center justify-center">
+          <svg class="w-9 h-9" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="edaform-card-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#1e293b"/>
+                <stop offset="100%" stop-color="#0f172a"/>
+              </linearGradient>
+              <linearGradient id="edaform-blade-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fbbf24"/>
+                <stop offset="100%" stop-color="#d97706"/>
+              </linearGradient>
+              <filter id="edaform-shadow" x="-10%" y="-10%" width="130%" height="130%">
+                <feDropShadow dx="1" dy="2" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.5"/>
+              </filter>
+            </defs>
+
+            <!-- Form Sheet (Ficha Edafológica) -->
+            <g filter="url(#edaform-shadow)">
+              <rect x="4" y="6" width="26" height="34" rx="4" fill="url(#edaform-card-grad)" stroke="#f59e0b" stroke-width="1.8"/>
+              <!-- Top Clip Header -->
+              <rect x="11" y="3.5" width="12" height="5" rx="2" fill="#f59e0b" stroke="#ffffff" stroke-width="1"/>
+              <circle cx="17" cy="6" r="1" fill="#1e293b"/>
+              <!-- Horizon Strata Lines -->
+              <line x1="8.5" y1="14" x2="22" y2="14" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="8.5" y1="20" x2="19" y2="20" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="8.5" y1="26" x2="21" y2="26" stroke="#d97706" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="8.5" y1="32" x2="16" y2="32" stroke="#78350f" stroke-width="2" stroke-linecap="round"/>
+            </g>
+
+            <!-- Minimalist Field Shovel (Pala) -->
+            <g filter="url(#edaform-shadow)" transform="rotate(18 31 22)">
+              <!-- D-Handle -->
+              <path d="M 28 3.5 L 34 3.5 C 35 3.5 35.5 4.2 35.5 5.2 L 35.5 8 C 35.5 9 35 9.5 34 9.5 L 28 9.5 C 27 9.5 26.5 9 26.5 8 L 26.5 5.2 C 26.5 4.2 27 3.5 28 3.5 Z" fill="none" stroke="#ffffff" stroke-width="1.8"/>
+              <line x1="31" y1="3.5" x2="31" y2="9.5" stroke="#ffffff" stroke-width="1.6"/>
+              <!-- Shaft -->
+              <line x1="31" y1="9.5" x2="31" y2="23" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
+              <!-- Metal Collar -->
+              <rect x="29" y="21.5" width="4" height="2" rx="0.5" fill="#94a3b8"/>
+              <!-- Pointed Spade Blade -->
+              <path d="M 26 23.5 L 36 23.5 C 36 29 31 36.5 31 36.5 C 31 36.5 26 29 26 23.5 Z" fill="url(#edaform-blade-grad)" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+              <!-- Blade Spine -->
+              <line x1="31" y1="23.5" x2="31" y2="32" stroke="#ffffff" stroke-width="1.2" opacity="0.85"/>
+            </g>
+          </svg>
+        </div>
+        <div class="flex flex-col justify-center flex-shrink-0">
+          <h1 class="font-black text-lg sm:text-xl leading-none tracking-tight text-white flex items-center gap-1.5">
+            Edaform
+          </h1>
+          <p class="text-[10px] sm:text-xs text-amber-400 font-semibold whitespace-nowrap mt-0.5">Formulario para descripción de suelos</p>
+        </div>
+      </div>
+
+      <!-- Right: Horizontally Scrollable Menu (Swipe with finger / Touch Scroll) -->
+      <div id="header-scrollable-toolbar" class="flex-1 min-w-0 flex items-center space-x-2 overflow-x-auto pl-3 py-0.5 scrollbar-none touch-pan-x" style="-webkit-overflow-scrolling: touch;">
+        <!-- Project Selector & Quick Switcher in Header -->
+        <div id="project-selector-container" class="flex items-center rounded-xl px-2.5 py-1 text-xs space-x-2 border border-slate-700/80 bg-slate-800/80 backdrop-blur-md shadow-xs flex-shrink-0">
+          <div class="flex items-center space-x-2 pl-0.5">
+            <i class="fa-solid fa-folder-open text-amber-400 text-xs sm:text-sm flex-shrink-0"></i>
+            <div class="flex flex-col min-w-0">
+              <span class="text-[8.5px] text-slate-400 font-bold uppercase tracking-wider leading-none">Estudio / Proyecto</span>
+              <select id="header-select-project" onchange="switchActiveProject(this.value)" class="text-white font-bold text-xs focus:outline-none cursor-pointer py-0.5 max-w-[170px] sm:max-w-[240px] truncate bg-transparent">
+                <option value="PRJ-01">PRJ-01 - Estudio Edafológico Valle Central</option>
+                <option value="PRJ-02">PRJ-02 - Línea Base Suelos Proyecto Solar El Romero</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" id="btn-open-projects" title="Administrar, Crear o Ver Lista de Proyectos" class="bg-slate-700/80 hover:bg-slate-600 text-amber-400 hover:text-amber-300 active:scale-95 text-xs px-2.5 py-1.5 rounded-lg font-semibold flex items-center space-x-1.5 transition border border-slate-600 shadow-xs cursor-pointer flex-shrink-0">
+            <i class="fa-solid fa-gear text-[11px]"></i>
+            <span class="hidden sm:inline">Gestionar</span>
+          </button>
+        </div>
+
+        <!-- Descargar ZIP (Primary CTA) -->
+        <button id="btn-export-zip" title="Descargar Paquete Consolidado del Proyecto (.ZIP con Fotos, GPKG, GeoJSON y Fichas)" class="bg-amber-600 hover:bg-amber-500 active:scale-95 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition shadow-sm border border-amber-500/50 whitespace-nowrap cursor-pointer flex-shrink-0">
+          <i class="fa-solid fa-file-zipper text-amber-200 text-sm"></i>
+          <span>Descargar ZIP</span>
+        </button>
+
+        <!-- Exportar GPKG -->
+        <button id="btn-export-gpkg" title="Exportar Base de Datos OGC GeoPackage (.gpkg) con capas y tablas 1:N para QGIS" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition border border-slate-700 shadow-xs whitespace-nowrap cursor-pointer flex-shrink-0">
+          <i class="fa-solid fa-box-archive text-indigo-400"></i>
+          <span>Exportar GPKG</span>
+        </button>
+
+        <!-- Importar GPX -->
+        <label for="import-gpx-file" title="Importar puntos de muestreo planificados desde archivo GPX (GPS Garmin / QGIS / BaseCamp)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition border border-slate-700 shadow-xs whitespace-nowrap cursor-pointer flex-shrink-0">
+          <i class="fa-solid fa-location-crosshairs text-emerald-400"></i>
+          <span>Importar GPX</span>
+          <input type="file" id="import-gpx-file" accept=".gpx" class="hidden">
+        </label>
+
+        <!-- GeoJSON -->
+        <button id="btn-export" title="Exportar Datos (GeoJSON / JSON)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition border border-slate-700 shadow-xs whitespace-nowrap cursor-pointer flex-shrink-0">
+          <i class="fa-solid fa-download text-sky-400"></i>
+          <span>GeoJSON</span>
+        </button>
+
+        <!-- PWA Status Badge -->
+        <span id="status-badge" class="bg-emerald-950/80 border border-emerald-700/40 text-emerald-300 text-[11px] font-medium px-2.5 py-1 rounded-full flex items-center space-x-1.5 shadow-xs whitespace-nowrap flex-shrink-0">
+          <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+          <span class="hidden lg:inline">PWA Activa</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <div id="main-content">
+      <!-- Map Section Wrapper -->
+      <div id="map-wrapper" class="relative flex-1 h-full">
+        <!-- Leaflet Map Container -->
+        <div id="map-container" class="w-full h-full"></div>
+
+        <!-- Floating Action Buttons Stack (Bottom-Left for Thumb Reach) -->
+        <div class="absolute bottom-6 left-6 z-[999] flex flex-col space-y-3">
+          <!-- New Calicata Button (+) -->
+          <button id="btn-new-calicata" title="Nueva Calicata (+)" class="bg-emerald-600 hover:bg-emerald-700 active:scale-90 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl transition-all border-2 border-white/90 focus:outline-none focus:ring-4 focus:ring-emerald-400/50 cursor-pointer">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+
+          <!-- Floating GPS Button -->
+          <button id="btn-gps" title="Obtener mi Ubicación GPS" class="bg-amber-600 hover:bg-amber-700 active:scale-90 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-xl transition-all border-2 border-white/90 focus:outline-none focus:ring-4 focus:ring-amber-400/50 cursor-pointer">
+            <i class="fa-solid fa-crosshairs"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sidebar Panel (Slide Drawer) -->
+      <aside id="sidebar">
+        <!-- 1 Single Slide Handle Button (Centered Vertically on Edge) -->
+        <button id="btn-sidebar-slide-toggle" title="Ocultar / Mostrar Panel Lateral" class="absolute -left-7 top-1/2 -translate-y-1/2 w-7 h-14 bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-gray-300 border-r-0 rounded-l-lg shadow-md flex items-center justify-center cursor-pointer transition-all z-30 focus:outline-none">
+          <i id="sidebar-slide-icon" class="fa-solid fa-chevron-right text-xs"></i>
+        </button>
+
+        <!-- Sidebar Navigation Tabs -->
+        <div id="sidebar-header" class="border-b border-gray-200 bg-gray-50 flex">
+          <button id="tab-btn-list" class="flex-1 py-3 text-xs font-semibold text-center text-amber-600 border-b-2 border-amber-600 flex items-center justify-center space-x-1.5">
+            <i class="fa-solid fa-list-check"></i>
+            <span>Calicatas</span>
+          </button>
+          <button id="tab-btn-horizontes" class="flex-1 py-3 text-xs font-semibold text-center text-gray-500 hover:text-gray-700 flex items-center justify-center space-x-1.5">
+            <i class="fa-solid fa-bars-staggered"></i>
+            <span>Horizontes</span>
+          </button>
+          <button id="tab-btn-diagram" class="flex-1 py-3 text-xs font-semibold text-center text-gray-500 hover:text-gray-700 flex items-center justify-center space-x-1.5">
+            <i class="fa-solid fa-chart-simple"></i>
+            <span>Ficha Perfil</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Calicatas List & Form Container -->
+        <div id="tab-content-list" class="p-4 flex-1 overflow-y-auto">
+          <!-- Active Project Banner in Sidebar -->
+          <div id="active-project-banner" class="bg-slate-800 text-white p-3 rounded-xl mb-3 shadow-sm border border-slate-700 flex items-center justify-between">
+            <div class="truncate mr-2">
+              <div class="flex items-center space-x-1.5 text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>Proyecto Activo</span>
+              </div>
+              <h3 id="banner-project-name" class="font-bold text-sm text-white truncate">Estudio Edafológico Valle Central</h3>
+              <p id="banner-project-meta" class="text-[11px] text-slate-300 truncate">Cliente: Agrícola Santa Laura | Rancagua</p>
+            </div>
+            <button type="button" id="btn-edit-active-project" title="Gestionar proyectos" class="text-slate-300 hover:text-white p-1.5 hover:bg-slate-700 rounded-lg transition text-xs flex-shrink-0">
+              <i class="fa-solid fa-gear"></i>
+            </button>
+          </div>
+
+          <!-- Add Calicata Button in Right Panel -->
+          <button type="button" id="btn-sidebar-add-calicata" class="w-full mb-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-2.5 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center space-x-2 shadow-md transition-all cursor-pointer">
+            <i class="fa-solid fa-plus text-base"></i>
+            <span>Agregar Calicata</span>
+          </button>
+
+          <!-- Calicata Form (Hidden by default until Add/Edit) -->
+          <form id="form-calicata" class="hidden space-y-4 bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4">
+            <div class="flex items-center justify-between border-b pb-2">
+              <div>
+                <h3 id="form-calicata-title" class="font-bold text-slate-800 text-base">Nueva Calicata</h3>
+                <span class="text-[11px] text-amber-800 font-medium" id="form-calicata-project-indicator">Proyecto: Estudio Edafológico</span>
+              </div>
+              <button type="button" id="btn-cancel-calicata" class="text-gray-400 hover:text-gray-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">ID Calicata *</label>
+                <input type="text" id="cal-id" required class="w-full px-2.5 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-500">
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Fecha</label>
+                <input type="date" id="cal-fecha" class="w-full px-2.5 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-500">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Examinador</label>
+                <input type="text" id="cal-examinador" placeholder="Nombre" class="w-full px-2.5 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-500">
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Material Parental</label>
+                <select id="cal-material" class="w-full px-2 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-500"></select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Forma de Relieve</label>
+                <select id="cal-relieve" class="w-full px-2 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-500"></select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Pedregosidad Superficial</label>
+                <select id="cal-pedregosidad" class="w-full px-2 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-500"></select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Clase de Drenaje</label>
+                <select id="cal-drenaje" class="w-full px-2 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-500"></select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Pendiente (%)</label>
+                <input type="number" step="0.1" id="cal-pendiente" class="w-full px-2 py-1.5 text-sm border rounded-lg">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Latitud</label>
+                <input type="text" inputmode="decimal" id="cal-lat" placeholder="-34.44858" class="w-full px-2 py-1.5 text-xs sm:text-sm border rounded-lg focus:ring-2 focus:ring-amber-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Longitud</label>
+                <input type="text" inputmode="decimal" id="cal-lng" placeholder="-70.79289" class="w-full px-2 py-1.5 text-xs sm:text-sm border rounded-lg focus:ring-2 focus:ring-amber-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1 flex items-center justify-between">
+                  <span>Altitud (m)</span>
+                  <button type="button" id="btn-fetch-elevation" title="Consultar altitud satelital automáticamente (DEM SRTM/Copernicus)" class="text-amber-700 hover:text-amber-900 text-[10px] font-bold cursor-pointer">
+                    <i class="fa-solid fa-mountain mr-0.5"></i>Auto
+                  </button>
+                </label>
+                <input type="text" inputmode="decimal" id="cal-elevacion" placeholder="m.s.n.m." class="w-full px-2 py-1.5 text-xs sm:text-sm border border-amber-300 rounded-lg font-bold text-slate-800 bg-amber-50/50 focus:ring-2 focus:ring-amber-500">
+              </div>
+            </div>
+
+            <!-- Condiciones Hídricas y Enraizamiento del Sitio -->
+            <div class="bg-blue-50/60 p-3 rounded-xl border border-blue-200/80 space-y-2.5">
+              <div class="flex items-center justify-between text-blue-900 font-bold text-xs">
+                <span class="flex items-center space-x-1.5">
+                  <i class="fa-solid fa-droplet text-blue-600"></i>
+                  <span>Condiciones Hídricas y Enraizamiento</span>
+                </span>
+                <span class="text-[10px] text-blue-700 font-normal">Humedad, Napa y Raíces</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1">Humedad del Perfil</label>
+                  <select id="cal-humedad" class="w-full px-2 py-1.5 text-xs border rounded-lg bg-white focus:ring-2 focus:ring-amber-500"></select>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1">Nivel Freático (cm)</label>
+                  <input type="number" step="1" min="0" id="cal-nivel-freatico" placeholder="Ej: 80 (vacío = ausente)" class="w-full px-2 py-1.5 text-xs border rounded-lg bg-white focus:ring-2 focus:ring-amber-500">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1">Límite de Raíces (cm)</label>
+                  <input type="number" step="1" min="0" id="cal-prof-raices" placeholder="Prof. máx. observada" class="w-full px-2 py-1.5 text-xs border rounded-lg bg-white focus:ring-2 focus:ring-amber-500">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1">Prof. Efectiva Suelo (cm)</label>
+                  <input type="number" step="1" min="0" id="cal-prof-efectiva" placeholder="Espesor sin limitante" class="w-full px-2 py-1.5 text-xs border rounded-lg bg-white focus:ring-2 focus:ring-amber-500">
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1.5 flex items-center justify-between">
+                <span><i class="fa-solid fa-camera text-amber-600 mr-1"></i>Foto Superficie / Entorno (Nivel 2)</span>
+                <span class="text-[10px] text-gray-500 font-normal">Cámara o Archivo</span>
+              </label>
+              <div class="flex items-center space-x-2">
+                <button type="button" onclick="openLiveCamera('calicata-surface')" class="flex-1 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold py-1.5 px-3 rounded-lg flex items-center justify-center space-x-1.5 shadow-xs transition cursor-pointer">
+                  <i class="fa-solid fa-camera"></i>
+                  <span>Abrir Cámara</span>
+                </button>
+                <label for="cal-foto" class="bg-gray-100 hover:bg-gray-200 text-slate-700 text-xs font-semibold py-1.5 px-3 rounded-lg border border-gray-300 flex items-center justify-center space-x-1 transition cursor-pointer">
+                  <i class="fa-solid fa-folder-open text-gray-500"></i>
+                  <span>Archivo</span>
+                  <input type="file" id="cal-foto" accept="image/*" class="hidden">
+                </label>
+              </div>
+              <div id="cal-foto-preview" class="mt-2 relative hidden">
+                <img id="cal-foto-img" src="" class="h-28 w-full object-cover rounded-lg border shadow-xs">
+                <button type="button" id="btn-remove-cal-foto" title="Eliminar fotografía" class="absolute top-1.5 right-1.5 bg-red-600/90 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow cursor-pointer">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Clasificación USDA Fijada al Final -->
+            <div class="bg-amber-50/80 p-3 rounded-xl border border-amber-200 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-amber-900 flex items-center space-x-1">
+                  <i class="fa-solid fa-award text-amber-600"></i>
+                  <span>Clasificación Taxonómica USDA (Fijada al Final)</span>
+                </label>
+                <button type="button" id="btn-autocalc-usda" title="Determinar automáticamente según los parámetros de la calicata" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-2.5 py-1 rounded-lg font-medium flex items-center space-x-1 shadow-sm transition">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  <span>Auto-Calcular</span>
+                </button>
+              </div>
+              <input type="text" id="cal-clasificacion" placeholder="Ej: Typic Haploxeroll (o usa Auto-Calcular)" class="w-full px-2.5 py-1.5 text-sm font-semibold text-slate-800 bg-white border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500">
+              <p class="text-[11px] text-amber-700">Se calcula de acuerdo con el material parental, relieve, drenaje y secuencia de horizontes.</p>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+              <button type="submit" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 rounded-lg text-sm shadow transition">
+                <i class="fa-solid fa-floppy-disk mr-1"></i> Guardar Calicata
+              </button>
+            </div>
+
+          </form>
+
+          <!-- List Header & Search -->
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Puntos de Calicatas (<span id="calicatas-count">0</span>)</span>
+            <input type="text" id="search-calicatas" placeholder="Buscar..." class="px-2.5 py-1 text-xs border rounded-lg w-36">
+          </div>
+
+          <!-- Cards List Container -->
+          <div id="calicatas-list" class="space-y-3">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Tab 2: Horizontes & Rasgos Redox (1:N) -->
+        <div id="tab-content-horizontes" class="p-4 flex-1 overflow-y-auto hidden">
+          <div id="no-calicata-selected" class="text-center py-10 text-gray-400">
+            <i class="fa-solid fa-arrow-pointer text-3xl mb-2"></i>
+            <p class="text-sm">Selecciona o crea una Calicata para gestionar sus Horizontes y Rasgos Redox.</p>
+          </div>
+
+          <div id="horizontes-manager" class="hidden space-y-4">
+            <!-- Selected Calicata Banner -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <span class="text-xs text-amber-700 font-semibold uppercase">Calicata Seleccionada</span>
+                <h4 id="selected-calicata-name" class="font-bold text-slate-800 text-base">C-01</h4>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button id="btn-copy-prev-horizontes" type="button" class="hidden bg-slate-900 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg flex items-center space-x-1.5 shadow transition cursor-pointer">
+                  <i class="fa-solid fa-copy text-amber-400"></i>
+                  <span id="btn-copy-prev-text">Copiar Horizontes</span>
+                </button>
+                <button id="btn-add-horizonte" type="button" class="bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center space-x-1 shadow transition cursor-pointer">
+                  <i class="fa-solid fa-plus"></i>
+                  <span>Agregar Horizonte</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Soil Profile Photo Card -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-xs space-y-2">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-slate-800 flex items-center space-x-1.5">
+                  <i class="fa-solid fa-camera text-amber-600"></i>
+                  <span>Foto del perfil de suelo</span>
+                </label>
+                <span class="text-[10px] text-gray-500 font-normal">Cámara o Archivo</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button type="button" onclick="openLiveCamera('calicata-profile')" class="flex-1 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold py-1.5 px-3 rounded-lg flex items-center justify-center space-x-1.5 shadow-xs transition cursor-pointer">
+                  <i class="fa-solid fa-camera"></i>
+                  <span>Abrir Cámara</span>
+                </button>
+                <label for="cal-foto-perfil" class="bg-gray-100 hover:bg-gray-200 text-slate-700 text-xs font-semibold py-1.5 px-3 rounded-lg border border-gray-300 flex items-center justify-center space-x-1 transition cursor-pointer">
+                  <i class="fa-solid fa-folder-open text-gray-500"></i>
+                  <span>Archivo</span>
+                  <input type="file" id="cal-foto-perfil" accept="image/*" class="hidden">
+                </label>
+              </div>
+              <div id="cal-foto-perfil-preview" class="relative hidden">
+                <img id="cal-foto-perfil-img" src="" class="h-44 w-full object-cover rounded-lg border shadow-xs">
+                <button type="button" id="btn-remove-perfil-foto" title="Eliminar fotografía" class="absolute top-2 right-2 bg-red-600/90 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow cursor-pointer">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+              <p id="cal-foto-perfil-placeholder" class="text-[11px] text-gray-400 italic py-1">Sin fotografía de perfil asignada. Se recomienda tomar una foto frontal nítida con escala métrica.</p>
+            </div>
+
+            <!-- Horizon Form (Hidden by default) -->
+            <form id="form-horizonte" class="hidden bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
+              <div class="flex items-center justify-between border-b pb-2">
+                <h4 id="form-horizonte-title" class="font-bold text-slate-800 text-sm">Nuevo Horizonte</h4>
+                <button type="button" id="btn-cancel-horizonte" class="text-gray-400 hover:text-gray-600">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">Designación *</label>
+                  <input type="text" id="hor-designacion" placeholder="Ej: Ap, Bt, C" required class="w-full px-2 py-1.5 text-sm border rounded-lg">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">Prof. Sup (cm)</label>
+                  <input type="text" inputmode="numeric" id="hor-prof-sup" readonly tabindex="-1" required class="w-full px-2 py-1.5 text-sm border border-slate-200 bg-slate-100 text-slate-700 font-bold rounded-lg cursor-not-allowed select-none text-center no-spin">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">Prof. Inf (cm) *</label>
+                  <input type="number" id="hor-prof-inf" min="0" required class="w-full px-2 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-500">
+                </div>
+              </div>
+
+              <!-- Munsell Colors Dry & Wet -->
+              <div class="grid grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">Color Munsell (Seco)</label>
+                  <div class="input-with-button-row">
+                    <input type="text" id="hor-munsell-seco" placeholder="Ej: 10YR 4/3">
+                    <button type="button" id="btn-pick-munsell-seco" class="bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs px-2.5 py-1.5 rounded-lg border border-amber-300 transition cursor-pointer">
+                      <i class="fa-solid fa-palette"></i>
+                    </button>
+                  </div>
+                  <div id="preview-munsell-seco" class="h-4 w-full rounded mt-1 border" style="background:#A0A0A0"></div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">Color Munsell (Húmedo)</label>
+                  <div class="input-with-button-row">
+                    <input type="text" id="hor-munsell-humedo" placeholder="Ej: 10YR 3/2">
+                    <button type="button" id="btn-pick-munsell-humedo" class="bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs px-2.5 py-1.5 rounded-lg border border-amber-300 transition cursor-pointer">
+                      <i class="fa-solid fa-palette"></i>
+                    </button>
+                  </div>
+                  <div id="preview-munsell-humedo" class="h-4 w-full rounded mt-1 border" style="background:#A0A0A0"></div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="text-xs font-medium text-gray-700">Textura de Campo</label>
+                    <button type="button" id="btn-open-lulito-guide" title="Método de Thien (Guía de Textura al Tacto USDA / FAO 1979)" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-950 px-2 py-0.5 rounded font-semibold border border-emerald-300 transition flex items-center space-x-1 cursor-pointer">
+                      <i class="fa-solid fa-hand-holding-droplet text-emerald-700"></i>
+                      <span>Método de Thien</span>
+                    </button>
+                  </div>
+                  <select id="hor-textura" class="w-full px-2 py-1.5 text-xs border rounded-lg"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">Tipo Estructura</label>
+                  <select id="hor-estructura-tipo" class="w-full px-2 py-1.5 text-xs border rounded-lg"></select>
+                </div>
+              </div>
+
+
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">Grado Estructura</label>
+                  <select id="hor-estructura-grado" class="w-full px-2 py-1.5 text-xs border rounded-lg"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">Consistencia Húmedo</label>
+                  <select id="hor-consistencia" class="w-full px-2 py-1.5 text-xs border rounded-lg"></select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">Estructura Tamaños</label>
+                  <select id="hor-estructura-tamano" class="w-full px-2 py-1.5 text-xs border rounded-lg"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">Efervescencia HCl</label>
+                  <select id="hor-hcl" class="w-full px-2 py-1.5 text-xs border rounded-lg"></select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">Límite Nitidez</label>
+                  <select id="hor-limite" class="w-full px-2 py-1.5 text-xs border rounded-lg"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">Topografía Límite</label>
+                  <select id="hor-limite-topografia" class="w-full px-2 py-1.5 text-xs border rounded-lg"></select>
+                </div>
+              </div>
+
+
+              <!-- Sección Raíces y Poros -->
+              <div class="bg-slate-100 p-2.5 rounded-xl border space-y-2">
+                <span class="block text-xs font-bold text-slate-800 flex items-center space-x-1">
+                  <i class="fa-solid fa-tree text-emerald-600"></i>
+                  <span>Raíces y Porosidad</span>
+                </span>
+
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-[11px] font-medium text-gray-600 mb-0.5">Raíces Cantidad</label>
+                    <select id="hor-raices-cantidad" class="w-full px-2 py-1 text-xs border rounded-lg"></select>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-medium text-gray-600 mb-0.5">Raíces Tamaño</label>
+                    <select id="hor-raices-tamano" class="w-full px-2 py-1 text-xs border rounded-lg"></select>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-[11px] font-medium text-gray-600 mb-0.5">Poros Cantidad</label>
+                    <select id="hor-poros-cantidad" class="w-full px-2 py-1 text-xs border rounded-lg"></select>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-medium text-gray-600 mb-0.5">Poros Tamaño</label>
+                    <select id="hor-poros-tamano" class="w-full px-2 py-1 text-xs border rounded-lg"></select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sección Pedregosidad Interna / Fragmentos Gruesos -->
+              <div class="bg-amber-50/80 p-2.5 rounded-xl border border-amber-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="block text-xs font-bold text-amber-950 flex items-center space-x-1">
+                    <i class="fa-solid fa-mountain text-amber-700"></i>
+                    <span>Pedregosidad Interna y Fragmentos Gruesos</span>
+                  </span>
+                  <button type="button" id="btn-open-visual-charts" title="Cartas de Estimación Porcentual (FAO / USDA)" class="bg-amber-200 hover:bg-amber-300 text-amber-950 text-[11px] px-2 py-0.5 rounded font-semibold flex items-center space-x-1 transition shadow-2xs cursor-pointer">
+                    <i class="fa-solid fa-eye"></i>
+                    <span>Estimación</span>
+                  </button>
+                </div>
+
+
+                <div class="grid grid-cols-3 gap-2">
+                  <div>
+                    <label class="block text-[11px] font-medium text-gray-700 mb-0.5">% Vol (0-100%)</label>
+                    <input type="number" min="0" max="100" id="hor-frag-vol" placeholder="Ej: 20" class="w-full px-2 py-1 text-xs border rounded-lg">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-medium text-gray-700 mb-0.5">Clase Pedregosidad</label>
+                    <select id="hor-pedregosidad-clase" class="w-full px-2 py-1 text-xs border rounded-lg"></select>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-medium text-gray-700 mb-0.5">Tipo Fragmento</label>
+                    <select id="hor-frag-tipo" class="w-full px-2 py-1 text-xs border rounded-lg"></select>
+                  </div>
+                </div>
+              </div>
+
+
+              <!-- Gestor de Rasgos Redoximórficos (RMF 1:N) -->
+              <div class="bg-blue-50/80 p-3 rounded-xl border border-blue-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="block text-xs font-bold text-blue-900 flex items-center space-x-1">
+                    <i class="fa-solid fa-droplet text-blue-600"></i>
+                    <span>Rasgos Redoximórficos (RMF)</span>
+                  </span>
+                  <button type="button" id="btn-add-rmf-item" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] px-2 py-1 rounded-lg font-medium flex items-center space-x-1 transition shadow-sm">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Añadir RMF</span>
+                  </button>
+                </div>
+
+                <!-- Sub-formulario para nuevo RMF -->
+                <div id="rmf-subform" class="hidden bg-white p-2.5 rounded-lg border border-blue-200 space-y-2">
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[11px] font-medium text-gray-700">Tipo RMF</label>
+                      <select id="rmf-tipo" class="w-full px-2 py-1 text-xs border rounded"></select>
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-medium text-gray-700">Cantidad</label>
+                      <select id="rmf-cantidad" class="w-full px-2 py-1 text-xs border rounded"></select>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[11px] font-medium text-gray-700">Contraste</label>
+                      <select id="rmf-contraste" class="w-full px-2 py-1 text-xs border rounded"></select>
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-medium text-gray-700">Tamaño</label>
+                      <select id="rmf-tamano" class="w-full px-2 py-1 text-xs border rounded"></select>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[11px] font-medium text-gray-700">Ubicación</label>
+                      <select id="rmf-ubicacion" class="w-full px-2 py-1 text-xs border rounded"></select>
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-medium text-gray-700 mb-0.5">Color Munsell RMF</label>
+                      <div class="flex items-center space-x-1">
+                        <input type="text" id="rmf-munsell" placeholder="Ej: 7.5YR 5/8" class="w-full px-2 py-1 text-xs border rounded-lg">
+                        <button type="button" id="btn-pick-munsell-rmf" title="Seleccionar Color Munsell RMF" class="bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs px-2 py-1 rounded-lg border border-amber-300 cursor-pointer flex-shrink-0">
+                          <i class="fa-solid fa-palette"></i>
+                        </button>
+                      </div>
+                      <div id="preview-munsell-rmf" class="h-3 w-full rounded mt-1 border" style="background:#A0A0A0"></div>
+                    </div>
+                  </div>
+
+                  <div class="flex justify-end space-x-1 pt-1">
+                    <button type="button" id="btn-cancel-rmf-item" class="text-xs text-gray-500 hover:text-gray-700 px-2 py-1">Cancelar</button>
+                    <button type="button" id="btn-save-rmf-item" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1 rounded shadow-sm">Confirmar RMF</button>
+                  </div>
+                </div>
+
+                <!-- Lista de RMFs añadidos al horizonte -->
+                <div id="rmf-items-list" class="space-y-1.5">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+
+              <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-1.5 rounded-lg text-xs shadow transition">
+                <i class="fa-solid fa-check mr-1"></i> Guardar Horizonte
+              </button>
+            </form>
+
+
+            <!-- Horizons List -->
+            <div id="horizontes-list" class="space-y-3">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Visual Profile Diagram (Ficha Edafológica) -->
+        <div id="tab-content-diagram" class="p-4 flex-1 overflow-y-auto hidden">
+          <div id="no-diagram-selected" class="text-center py-10 text-gray-400">
+            <i class="fa-solid fa-layer-group text-3xl mb-2"></i>
+            <p class="text-sm">Selecciona una Calicata para generar su Ficha de Perfil Edafológico.</p>
+          </div>
+
+          <div id="diagram-container" class="hidden space-y-4">
+            <div class="flex items-center justify-between border-b pb-2">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base" id="diagram-calicata-id">Calicata C-01</h3>
+                <p class="text-xs text-gray-500" id="diagram-calicata-meta">USDA Haploxeroll | 2026-08-20</p>
+              </div>
+
+              <button id="btn-print-ficha" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center space-x-1 shadow">
+                <i class="fa-solid fa-print"></i>
+                <span>Imprimir / PDF</span>
+              </button>
+            </div>
+
+            <!-- Profile Column Graphic Visualizer -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
+                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Esquema Edafológico</h4>
+                <span class="text-[11px] text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200" id="diagram-total-depth">Profundidad Total: 0 cm</span>
+              </div>
+
+              <!-- Quick Micro-Badges Bar (Hydrology & Roots) -->
+              <div id="diagram-quick-badges" class="flex items-center gap-1.5 mb-2 overflow-x-auto pb-0.5 text-[10px] empty:hidden">
+                <!-- Rendered dynamically -->
+              </div>
+
+              <div id="horizon-profile-wrapper" class="horizon-profile-container">
+                <div id="depth-ruler-axis" class="depth-ruler">
+                  <!-- Regla graduada renderizada dinámicamente -->
+                </div>
+                <div id="horizon-column-visual" class="horizon-column">
+                  <!-- Horizontes renderizados con altura 100% proporcional -->
+                </div>
+              </div>
+            </div>
+
+            <!-- 1. Foto del Sitio / Entorno -->
+            <div id="diagram-photo-superficie-card" class="bg-gray-50 border border-slate-200 rounded-xl p-3 shadow-xs space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                  <i class="fa-solid fa-camera mr-1 text-amber-600"></i>Foto del Sitio / Entorno
+                </span>
+                <button type="button" onclick="openLiveCamera('calicata-surface')" title="Tomar foto del sitio/entorno" class="text-slate-500 hover:text-amber-600 text-xs transition cursor-pointer p-0.5 flex items-center gap-1 font-semibold">
+                  <i class="fa-solid fa-camera"></i>
+                  <span>Cámara</span>
+                </button>
+              </div>
+              <div id="diagram-photo-superficie-box" class="relative h-44 w-full bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center">
+                <img id="diagram-photo-superficie-img" src="" class="h-full w-full object-cover hidden">
+                <div id="diagram-photo-superficie-empty" class="text-center p-3 text-slate-400 flex flex-col items-center">
+                  <i class="fa-solid fa-mountain-sun text-2xl mb-1 text-slate-300"></i>
+                  <span class="text-xs">Sin fotografía del sitio/entorno</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Metadatos del Sitio -->
+            <div class="bg-gray-50 rounded-xl p-3 border text-xs space-y-2">
+              <h4 class="font-bold text-slate-800 border-b pb-1 text-xs uppercase tracking-wide flex items-center gap-1.5">
+                <i class="fa-solid fa-list-check text-amber-600"></i>
+                <span>Metadatos del Sitio</span>
+              </h4>
+              <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-gray-600" id="diagram-site-specs">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- 3. Foto del perfil de suelo -->
+            <div id="diagram-photo-perfil-card" class="bg-gray-50 border border-slate-200 rounded-xl p-3 shadow-xs space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                  <i class="fa-solid fa-layer-group mr-1 text-amber-600"></i>Foto del perfil de suelo
+                </span>
+                <button type="button" onclick="openLiveCamera('calicata-profile')" title="Tomar foto del perfil de suelo" class="text-slate-500 hover:text-amber-600 text-xs transition cursor-pointer p-0.5 flex items-center gap-1 font-semibold">
+                  <i class="fa-solid fa-camera"></i>
+                  <span>Cámara</span>
+                </button>
+              </div>
+              <div id="diagram-photo-perfil-box" class="relative h-44 w-full bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center">
+                <img id="diagram-photo-perfil-img" src="" class="h-full w-full object-cover hidden">
+                <div id="diagram-photo-perfil-empty" class="text-center p-3 text-slate-400 flex flex-col items-center">
+                  <i class="fa-solid fa-layer-group text-2xl mb-1 text-slate-300"></i>
+                  <span class="text-xs">Sin fotografía del perfil de suelo</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Munsell Color Picker Modal -->
+  <div id="munsell-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-4 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between border-b pb-2">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-palette text-amber-600 text-lg"></i>
+          <h3 class="font-bold text-slate-800 text-sm">Selector Visual Munsell Color Chart</h3>
+        </div>
+        <button id="btn-close-munsell" class="text-gray-400 hover:text-gray-600 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Advertencia Munsell Digital vs Físico -->
+      <div class="bg-amber-50 border border-amber-300 text-amber-900 rounded-xl p-2.5 text-[11px] flex items-start space-x-2">
+        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm mt-0.5 flex-shrink-0"></i>
+        <div>
+          <b>Advertencia Importante:</b> Los colores mostrados en pantalla son una representación digital aproximada y dependen de la calibración del monitor o pantalla móvil. <b>No reemplazan el uso de la tabla física oficial Munsell Soil Color Book en terreno.</b>
+        </div>
+      </div>
+
+      <!-- Buscador Rápido Munsell -->
+      <div class="relative">
+        <input type="text" id="munsell-search-input" placeholder="🔍 Buscar notación (ej: 10YR 4/3, 5R 8/2, GLEY)..." class="w-full px-3 py-1.5 text-xs border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 bg-amber-50/50">
+      </div>
+
+      <!-- Hue Tabs -->
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Tono / Hue (Munsell)</label>
+        <div id="munsell-hue-tabs" class="flex space-x-1 overflow-x-auto pb-1">
+          <!-- Hue buttons generated dynamically -->
+        </div>
+      </div>
+
+
+      <!-- Value & Chroma Swatches Grid -->
+      <div>
+        <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+          <span id="munsell-chips-count">Claridad (Value) vs Pureza (Chroma)</span>
+          <span id="munsell-selected-notation" class="font-bold text-slate-900 bg-amber-100 text-amber-900 px-2 py-0.5 rounded">10YR 4/3</span>
+        </div>
+        <div id="munsell-swatches-grid" class="munsell-grid bg-gray-50 border rounded-xl max-h-60 overflow-y-auto">
+          <!-- Swatches generated dynamically -->
+        </div>
+      </div>
+
+
+      <div class="flex space-x-2 pt-2 border-t">
+        <button id="btn-confirm-munsell" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 rounded-lg text-xs shadow transition">
+          Aplicar Color Munsell
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Clave Dicotómica de Textura en Campo (Método de Thien / Clave de Cordoncillo y Anillo) -->
+  <div id="lulito-guide-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-5 shadow-2xl space-y-3.5 max-h-[90vh] flex flex-col">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b pb-2.5 flex-shrink-0">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-hand-holding-droplet text-emerald-600 text-lg"></i>
+          <div>
+            <h3 class="font-bold text-slate-800 text-sm sm:text-base">Método de Thien (Textura en Campo)</h3>
+            <p class="text-[11px] text-gray-500">Clave de esfera, cilindro, 'U', anillo y tacto</p>
+          </div>
+        </div>
+        <button id="btn-close-lulito-modal" class="text-gray-400 hover:text-gray-600 text-lg cursor-pointer p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Flowchart Interactive Node Container -->
+      <div id="thien-decision-container" class="space-y-3 flex-1 overflow-y-auto p-1">
+        <!-- Rendered dynamically by renderThienDecisionNode() -->
+      </div>
+
+      <!-- Result Banner -->
+      <div id="lul-result-banner" class="bg-emerald-50 border-2 border-emerald-300 p-3 rounded-xl text-center space-y-1 flex-shrink-0 transition-all">
+        <div class="text-[11px] text-emerald-700 font-bold uppercase tracking-wider">Clase Textural Determinada</div>
+        <div id="lul-calc-result" class="font-black text-emerald-950 text-base sm:text-lg">Iniciando prueba de campo...</div>
+        <div id="lul-calc-desc" class="text-xs text-emerald-800/80">Sigue los pasos de la clave dicotómica</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex space-x-2 pt-1 flex-shrink-0">
+        <button type="button" onclick="resetLulitoState()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-2 rounded-lg text-xs transition flex items-center gap-1 cursor-pointer">
+          <i class="fa-solid fa-rotate-left"></i> Reiniciar
+        </button>
+        <button id="btn-apply-lul-texture" class="flex-1 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-2 rounded-lg text-xs shadow-md transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer" disabled>
+          <i class="fa-solid fa-check mr-1"></i> Aplicar Clase Textural al Horizonte
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal Cartas Visuales de Estimación Porcentual (FAO - USDA) -->
+  <div id="visual-charts-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-4 sm:p-5 shadow-2xl space-y-3 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b pb-2.5 flex-shrink-0">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-chart-pie text-amber-600 text-lg"></i>
+          <h3 class="font-bold text-slate-800 text-sm sm:text-base">Cartas de Estimación Porcentual (FAO / USDA)</h3>
+        </div>
+        <button id="btn-close-charts-modal" class="text-gray-400 hover:text-gray-600 text-lg cursor-pointer p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-gray-600 flex-shrink-0">Diagramas de comparación visual de abundancia para <b>moteados (RMF)</b> y <b>fragmentos gruesos (pedregosidad)</b>:</p>
+
+      <!-- Density Charts Grid -->
+      <div id="visual-charts-grid" class="grid grid-cols-3 gap-3 overflow-y-auto p-1.5 flex-1 max-h-[60vh]">
+        <!-- SVG Charts (1%, 3%, 5%, 10%, 15%, 20%, 30%, 40%, 50%) generated dynamically with true circular distribution -->
+      </div>
+
+      <div class="text-[11px] text-gray-500 text-center italic border-t pt-2 flex-shrink-0">
+        Haz clic en una carta de densidad para aplicar el % de abundancia estimado.
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Gestión Integral de Proyectos -->
+  <div id="projects-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-5 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b pb-3 flex-shrink-0">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-folder-tree text-amber-600 text-xl"></i>
+          <h3 class="font-bold text-slate-800 text-base">Gestión de Proyectos Edafológicos</h3>
+        </div>
+        <button id="btn-close-projects-modal" class="text-gray-400 hover:text-gray-600 text-xl cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Tabs -->
+      <div class="flex space-x-2 border-b pb-2 flex-shrink-0">
+        <button id="modal-tab-projects-list" type="button" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-amber-600 text-white transition">
+          <i class="fa-solid fa-list mr-1"></i> Lista de Proyectos (<span id="projects-count">0</span>)
+        </button>
+        <button id="modal-tab-projects-new" type="button" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-gray-100 hover:bg-gray-200 text-slate-700 transition">
+          <i class="fa-solid fa-plus mr-1"></i> Nuevo Proyecto
+        </button>
+      </div>
+
+      <!-- Search Bar for Projects List -->
+      <div id="projects-search-container" class="relative flex-shrink-0">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+        <input type="text" id="search-projects" placeholder="Buscar proyectos por nombre, cliente, código, ubicación o responsable..." class="w-full pl-8 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
+        <button type="button" id="btn-clear-search-projects" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 hidden text-xs cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Projects List View -->
+      <div id="projects-list-container" class="flex-1 overflow-y-auto space-y-3 p-1">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Projects Form View (Create / Edit) -->
+      <form id="form-project" class="hidden flex-1 overflow-y-auto space-y-3 p-1">
+        <input type="hidden" id="proj-orig-id">
+        
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-1">
+            <label class="block text-xs font-bold text-gray-700 mb-1">
+              Prefijo / ID * <span class="text-[10px] text-amber-700 font-bold">(máx 6)</span>
+            </label>
+            <input type="text" id="proj-id" required maxlength="6" placeholder="PRJ-01" class="w-full px-2.5 py-2 text-sm border rounded-lg uppercase font-black text-amber-800 bg-amber-50 border-amber-300 focus:ring-2 focus:ring-amber-500 focus:bg-white text-center tracking-wider" style="text-transform: uppercase;">
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-bold text-gray-700 mb-1">Nombre del Proyecto *</label>
+            <input type="text" id="proj-nombre" required placeholder="Ej: Estudio Edafológico Fundo San Pedro" class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Cliente / Mandante</label>
+            <input type="text" id="proj-cliente" placeholder="Ej: Agrícola Santa Laura" class="w-full px-3 py-1.5 text-sm border rounded-lg">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Fecha</label>
+            <input type="date" id="proj-fecha" class="w-full px-3 py-1.5 text-sm border rounded-lg">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Ubicación / Comuna / Región</label>
+            <input type="text" id="proj-ubicacion" placeholder="Ej: Rancagua, O'Higgins" class="w-full px-3 py-1.5 text-sm border rounded-lg">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Responsable / Edafólogo</label>
+            <input type="text" id="proj-responsable" placeholder="Nombre del examinador principal" class="w-full px-3 py-1.5 text-sm border rounded-lg">
+          </div>
+        </div>
+
+        <!-- Superficie Estimada (ha) + Nivel de Detalle / Orden (USDA) -->
+        <div class="grid grid-cols-2 gap-3 bg-amber-50/70 p-2.5 rounded-xl border border-amber-200">
+          <div>
+            <label class="block text-xs font-bold text-amber-900 mb-1">
+              <i class="fa-solid fa-ruler-combined mr-1 text-amber-700"></i>Superficie Estimada (ha)
+            </label>
+            <input type="number" id="proj-superficie" min="0" step="0.1" placeholder="Ej: 45.0" class="w-full px-3 py-1.5 text-sm border border-amber-300 rounded-lg bg-white font-bold text-slate-800 focus:ring-2 focus:ring-amber-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-amber-900 mb-1">
+              <i class="fa-solid fa-layer-group mr-1 text-amber-700"></i>Nivel de Detalle / Orden
+            </label>
+            <select id="proj-nivel-detalle" class="w-full px-2.5 py-1.5 text-xs border border-amber-300 rounded-lg bg-white font-medium text-slate-800 focus:ring-2 focus:ring-amber-500">
+              <option value="Orden 2 - Detallado (1:10.000 a 1:25.000)">Orden 2 - Detallado (1:10.000 a 1:25.000)</option>
+              <option value="Orden 1 - Muy Detallado (> 1:10.000)">Orden 1 - Muy Detallado (> 1:10.000)</option>
+              <option value="Orden 3 - Semi-Detallado (1:25.000 a 1:50.000)">Orden 3 - Semi-Detallado (1:25.000 a 1:50.000)</option>
+              <option value="Orden 4 - Reconocimiento (> 1:50.000)">Orden 4 - Reconocimiento (> 1:50.000)</option>
+              <option value="Exploratorio / Prospección">Exploratorio / Prospección</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tipo / Objetivo del Estudio (con opción 'Otro') -->
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">
+            <i class="fa-solid fa-bullseye mr-1 text-amber-600"></i>Tipo / Objetivo del Estudio
+          </label>
+          <select id="proj-objetivo-select" class="w-full px-3 py-1.5 text-sm border rounded-lg bg-white font-medium text-slate-800 focus:ring-2 focus:ring-amber-500 mb-1.5">
+            <option value="Estudio Agrológico y Capacidad de Uso de Suelo (CUS - SAG)">Estudio Agrológico y Capacidad de Uso de Suelo (CUS - SAG)</option>
+            <option value="Línea de Base Ambiental (SEIA / EIA / DIA)">Línea de Base Ambiental (SEIA / EIA / DIA)</option>
+            <option value="Diseño de Riego Tecnificado y Drenaje">Diseño de Riego Tecnificado y Drenaje</option>
+            <option value="Aptitud Frutícola y Manejo Agronómico">Aptitud Frutícola y Manejo Agronómico</option>
+            <option value="Cartografía Taxonómica USDA">Cartografía Taxonómica USDA</option>
+            <option value="Investigación Edafológica / Académica">Investigación Edafológica / Académica</option>
+            <option value="__OTRO__">Otro (Especificar...)</option>
+          </select>
+          <input type="text" id="proj-objetivo-otro" placeholder="Escribe el objetivo personalizado del estudio..." class="hidden w-full px-3 py-1.5 text-sm border border-amber-400 bg-amber-50/50 rounded-lg focus:ring-2 focus:ring-amber-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Descripción / Notas Adicionales</label>
+          <textarea id="proj-descripcion" rows="2" placeholder="Notas generales, predio, accesos..." class="w-full px-3 py-1.5 text-sm border rounded-lg"></textarea>
+        </div>
+
+        <!-- Fotografía Panorámica / Paisaje del Proyecto (Nivel 1) -->
+        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-2">
+          <label class="block text-xs font-bold text-slate-800 flex items-center justify-between">
+            <span><i class="fa-solid fa-camera text-amber-600 mr-1"></i>Foto Panorámica del Paisaje / Predio (Nivel 1)</span>
+            <span class="text-[10px] text-gray-500 font-normal">Cámara o Archivo</span>
+          </label>
+          <div class="flex items-center space-x-2">
+            <button type="button" onclick="openLiveCamera('project')" class="flex-1 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold py-1.5 px-3 rounded-lg flex items-center justify-center space-x-1.5 shadow-xs transition cursor-pointer">
+              <i class="fa-solid fa-camera"></i>
+              <span>Abrir Cámara</span>
+            </button>
+            <label for="proj-foto" class="bg-white hover:bg-gray-100 text-slate-700 text-xs font-semibold py-1.5 px-3 rounded-lg border border-gray-300 flex items-center justify-center space-x-1 transition cursor-pointer">
+              <i class="fa-solid fa-folder-open text-gray-500"></i>
+              <span>Archivo</span>
+              <input type="file" id="proj-foto" accept="image/*" class="hidden">
+            </label>
+          </div>
+          <div id="proj-foto-preview" class="mt-2 relative hidden">
+            <img id="proj-foto-img" src="" class="h-32 w-full object-cover rounded-lg border shadow-xs">
+            <button type="button" id="btn-remove-proj-foto" title="Eliminar fotografía" class="absolute top-1.5 right-1.5 bg-red-600/90 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow cursor-pointer">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex space-x-2 pt-2 border-t flex-shrink-0">
+          <button type="button" id="btn-cancel-project-form" class="px-4 py-2 text-xs text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+          <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-sm shadow transition">
+            <i class="fa-solid fa-floppy-disk mr-1"></i> Guardar Proyecto
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Live WebRTC Camera Viewfinder Modal -->
+  <div id="camera-modal" class="fixed inset-0 bg-black/90 z-[9999] flex flex-col items-center justify-between p-4 hidden">
+    <!-- Camera Header Controls -->
+    <div class="w-full max-w-2xl flex items-center justify-between text-white py-2 px-1">
+      <div class="flex items-center space-x-2">
+        <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+        <h3 id="camera-modal-title" class="font-bold text-sm md:text-base">📸 Cámara</h3>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button type="button" id="btn-switch-camera" title="Cambiar Cámara (Frontal / Trasera)" class="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 backdrop-blur-md transition cursor-pointer">
+          <i class="fa-solid fa-camera-rotate text-sm"></i>
+          <span class="hidden sm:inline">Cambiar Cámara</span>
+        </button>
+        <button type="button" id="btn-close-camera" title="Cerrar Cámara" class="bg-white/20 hover:bg-white/30 text-white w-9 h-9 rounded-xl flex items-center justify-center text-lg backdrop-blur-md transition cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Viewfinder Frame -->
+    <div class="relative flex-1 w-full max-w-2xl flex items-center justify-center overflow-hidden rounded-2xl bg-black border border-white/20 shadow-2xl my-2">
+      <video id="camera-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+      
+      <!-- Soil Horizon Grid Alignment Guide Overlay -->
+      <div class="absolute inset-0 pointer-events-none grid grid-cols-3 grid-rows-3 border border-white/20 opacity-40">
+        <div class="border-r border-b border-white/20"></div>
+        <div class="border-r border-b border-white/20"></div>
+        <div class="border-b border-white/20"></div>
+        <div class="border-r border-b border-white/20"></div>
+        <div class="border-r border-b border-white/20"></div>
+        <div class="border-b border-white/20"></div>
+        <div class="border-r border-b border-white/20"></div>
+        <div class="border-r border-b border-white/20"></div>
+        <div></div>
+      </div>
+
+      <!-- Center Focus Target Indicator -->
+      <div class="absolute w-20 h-20 border-2 border-amber-400/80 rounded-xl pointer-events-none flex items-center justify-center">
+        <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
+      </div>
+    </div>
+
+    <!-- Camera Bottom Action Controls -->
+    <div class="w-full max-w-2xl flex items-center justify-around py-3">
+      <button type="button" id="btn-cancel-camera-bottom" class="text-white/80 hover:text-white text-xs font-semibold px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition cursor-pointer">
+        Cancelar
+      </button>
+
+      <!-- Shutter Trigger Button -->
+      <button type="button" id="btn-capture-photo" title="Disparar Fotografía" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-white bg-amber-600 hover:bg-amber-500 active:scale-90 flex items-center justify-center text-white text-2xl sm:text-3xl shadow-2xl transition-all cursor-pointer focus:ring-4 focus:ring-amber-400/50">
+        <i class="fa-solid fa-camera"></i>
+      </button>
+
+      <div class="w-16"></div>
+    </div>
+  </div>
+
+  <!-- App JavaScript files -->
+  <script src="schema.js?v=56"></script>
+  <script src="app.js?v=56"></script>
+</body>
+</html>
+

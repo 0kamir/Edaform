@@ -1,0 +1,21 @@
+{
+  "name": "Edaform - Descripción Edafológica",
+  "short_name": "Edaform",
+  "description": "Sistema Edafológico para Descripción de Perfiles de Suelo (USDA / FAO)",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#1e293b",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3061/3061730.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" fill="none" width="100%" height="100%">
+  <defs>
+    <linearGradient id="edaform-card-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="edaform-blade-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <filter id="edaform-shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Form Sheet (Ficha Edafológica) -->
+  <g filter="url(#edaform-shadow)">
+    <rect x="4" y="6" width="26" height="34" rx="4" fill="url(#edaform-card-grad)" stroke="#f59e0b" stroke-width="1.8"/>
+    <!-- Top Clip Header -->
+    <rect x="11" y="3.5" width="12" height="5" rx="2" fill="#f59e0b" stroke="#ffffff" stroke-width="1"/>
+    <circle cx="17" cy="6" r="1" fill="#1e293b"/>
+    <!-- Horizon Strata Lines -->
+    <line x1="8.5" y1="14" x2="22" y2="14" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="8.5" y1="20" x2="19" y2="20" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="8.5" y1="26" x2="21" y2="26" stroke="#d97706" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="8.5" y1="32" x2="16" y2="32" stroke="#78350f" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Minimalist Field Shovel (Pala) -->
+  <g filter="url(#edaform-shadow)" transform="rotate(18 31 22)">
+    <!-- D-Handle -->
+    <path d="M 28 3.5 L 34 3.5 C 35 3.5 35.5 4.2 35.5 5.2 L 35.5 8 C 35.5 9 35 9.5 34 9.5 L 28 9.5 C 27 9.5 26.5 9 26.5 8 L 26.5 5.2 C 26.5 4.2 27 3.5 28 3.5 Z" fill="none" stroke="#ffffff" stroke-width="1.8"/>
+    <line x1="31" y1="3.5" x2="31" y2="9.5" stroke="#ffffff" stroke-width="1.6"/>
+    <!-- Shaft -->
+    <line x1="31" y1="9.5" x2="31" y2="23" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round"/>
+    <!-- Metal Collar -->
+    <rect x="29" y="21.5" width="4" height="2" rx="0.5" fill="#94a3b8"/>
+    <!-- Pointed Spade Blade -->
+    <path d="M 26 23.5 L 36 23.5 C 36 29 31 36.5 31 36.5 C 31 36.5 26 29 26 23.5 Z" fill="url(#edaform-blade-grad)" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+    <!-- Blade Spine -->
+    <line x1="31" y1="23.5" x2="31" y2="32" stroke="#ffffff" stroke-width="1.2" opacity="0.85"/>
+  </g>
+</svg>

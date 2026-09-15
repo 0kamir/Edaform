@@ -1,0 +1,511 @@
+/* styles.css - Custom styling for Calicatas WebApp */
+
+/* Layout & Panels */
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+  overflow: hidden;
+}
+
+#app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+#main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Responsive Split View: Desktop Side-by-Side, Mobile Stacked */
+#map-wrapper {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+#map-container {
+  width: 100%;
+  height: 100%;
+}
+
+#sidebar {
+  width: 480px;
+  max-width: 100%;
+  background: #ffffff;
+  border-left: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+  box-shadow: -4px 0 16px rgba(0,0,0,0.08);
+  transition: margin-right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  position: relative;
+}
+
+#sidebar.collapsed {
+  margin-right: -480px;
+}
+
+#btn-sidebar-slide-toggle {
+  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.12);
+}
+
+/* Header & Horizontal Swipe Toolbar */
+#header-scrollable-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  white-space: nowrap !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
+}
+
+#header-scrollable-toolbar::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, WebKit */
+}
+
+/* Header Project Selector Styling */
+#project-selector-container {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+#header-select-project {
+  background-color: transparent;
+  color: #f8fafc;
+}
+
+#header-select-project option {
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 8px 12px;
+}
+
+@media (max-width: 768px) {
+  #main-content {
+    flex-direction: column;
+    position: relative;
+  }
+  #map-wrapper {
+    height: 100% !important;
+    flex: 1 !important;
+  }
+  #sidebar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 88%;
+    max-width: 420px;
+    height: 100%;
+    border-left: 2px solid #e5e7eb;
+    border-top: none;
+    z-index: 50;
+    margin-right: 0;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  #sidebar.collapsed {
+    transform: translateX(100%);
+    margin-right: 0;
+  }
+}
+
+/* Soil Profile Horizon Diagram Visualizer with Depth Ruler */
+.horizon-profile-container {
+  display: flex;
+  width: 100%;
+  border: 2px solid #374151;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: #0f172a;
+  position: relative;
+}
+
+/* Vertical Depth Tape Ruler on the Left */
+.depth-ruler {
+  width: 54px;
+  background: #1e293b;
+  border-right: 2px solid #475569;
+  position: relative;
+  flex-shrink: 0;
+  color: #94a3b8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  user-select: none;
+}
+
+.depth-tick {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  border-top: 1px dashed #475569;
+  padding-left: 4px;
+  line-height: 1;
+}
+
+.depth-tick::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 6px;
+  height: 1.5px;
+  background: #cbd5e1;
+}
+
+.horizon-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #f9fafb;
+}
+
+.horizon-block {
+  padding: 6px 12px;
+  border-bottom: 2px dashed rgba(255,255,255,0.6);
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+  position: relative;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.horizon-block:hover {
+  filter: brightness(1.1);
+}
+
+.horizon-depth-tag {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  font-size: 0.68rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+
+
+/* Munsell Palette Swatches (Ordered Rows by Value level) */
+.munsell-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
+
+.munsell-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.munsell-row-label {
+  width: 38px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #4b5563;
+  text-align: right;
+  padding-right: 4px;
+  flex-shrink: 0;
+}
+
+.munsell-swatches-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+}
+
+.munsell-swatch {
+  width: 52px;
+  height: 40px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+  border: 2px solid transparent;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.munsell-swatch:hover, .munsell-swatch.selected {
+  transform: scale(1.08);
+  border-color: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+
+/* Print / Ficha Edafológica View */
+@media print {
+  #map-wrapper, #map-container, #sidebar-header, .no-print {
+    display: none !important;
+  }
+  #sidebar {
+    width: 100% !important;
+    height: auto !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
+
+/* Hide native number input stepper arrows on readonly & no-spin elements */
+input[readonly]::-webkit-outer-spin-button,
+input[readonly]::-webkit-inner-spin-button,
+.no-spin::-webkit-outer-spin-button,
+.no-spin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[readonly][type=number],
+.no-spin[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* ===================================================
+   Custom Styled Leaflet Map Pins (Edaform Style)
+   =================================================== */
+.leaflet-div-icon.custom-calicata-marker,
+.leaflet-div-icon.custom-temp-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.calicata-map-pin {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -100%);
+  cursor: pointer;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45));
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+  pointer-events: auto;
+}
+
+.calicata-map-pin:hover {
+  transform: translate(-50%, -108%) scale(1.1);
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.6));
+  z-index: 1000 !important;
+}
+
+.calicata-map-pin.is-selected {
+  transform: translate(-50%, -108%) scale(1.14);
+  filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.8)) drop-shadow(0 6px 12px rgba(0, 0, 0, 0.45));
+  z-index: 1001 !important;
+}
+
+.calicata-map-pin .pin-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: #ffffff;
+  padding: 3px 9px 3px 4px;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+.calicata-map-pin .pin-icon-wrap {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #d97706; /* Amber-600 */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+}
+
+.calicata-map-pin.is-selected .pin-badge {
+  background: linear-gradient(135deg, #065f46 0%, #022c22 100%);
+  border-color: #34d399;
+}
+
+.calicata-map-pin.is-selected .pin-icon-wrap {
+  background: #10b981;
+}
+
+.calicata-map-pin .pin-arrow {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid #0f172a;
+  margin-top: -1px;
+}
+
+.calicata-map-pin.is-selected .pin-arrow {
+  border-top-color: #022c22;
+}
+
+/* Pulsing GPS Temp Target Marker */
+.temp-gps-pin {
+  width: 22px;
+  height: 22px;
+  background: #f59e0b;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  animation: gps-pulse 1.6s infinite ease-out;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes gps-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.8), 0 2px 6px rgba(0,0,0,0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(245, 158, 11, 0), 0 2px 6px rgba(0,0,0,0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0), 0 2px 6px rgba(0,0,0,0.4);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Safe Area & Mobile Header */
+header {
+  padding-top: max(0.625rem, env(safe-area-inset-top, 0px)) !important;
+  padding-left: max(1rem, env(safe-area-inset-left, 0px)) !important;
+  padding-right: max(1rem, env(safe-area-inset-right, 0px)) !important;
+}
+
+/* ==========================================================================
+   Harmonized Form Alignment & Control Sizing (USDA / FAO Field Data Entry)
+   ========================================================================== */
+
+/* Universal Form Control Grid Items */
+#form-calicata .grid > div,
+#form-horizonte .grid > div,
+.form-field-group {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-end !important;
+}
+
+/* Standardized Label Alignment with consistent baseline */
+#form-calicata label,
+#form-horizonte label,
+.form-field-label {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  min-height: 1.75rem !important; /* 28px: ensures 1-line and 2-line labels align their inputs on the exact same row */
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  line-height: 1.15 !important;
+  color: #334155 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+/* Standardized Input & Select Dimensions across all forms */
+#form-calicata input[type="text"],
+#form-calicata input[type="number"],
+#form-calicata input[type="date"],
+#form-calicata select,
+#form-horizonte input[type="text"],
+#form-horizonte input[type="number"],
+#form-horizonte select,
+.form-field-input {
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  box-sizing: border-box !important;
+  padding: 0.375rem 0.625rem !important;
+  font-size: 0.8125rem !important; /* 13px */
+  line-height: 1.25 !important;
+  border-radius: 0.5rem !important;
+  border: 1px solid #cbd5e1 !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  width: 100% !important;
+  vertical-align: middle !important;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+/* Custom Dropdown Chevron for all selects */
+#form-calicata select,
+#form-horizonte select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.625rem center !important;
+  background-size: 1rem 1rem !important;
+  padding-right: 2rem !important;
+}
+
+#form-calicata input:focus,
+#form-calicata select:focus,
+#form-horizonte input:focus,
+#form-horizonte select:focus {
+  outline: none !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 2.5px rgba(245, 158, 11, 0.25) !important;
+}
+
+/* Rows with Input + Button (e.g. Munsell Pickers) */
+.input-with-button-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.375rem !important;
+}
+
+.input-with-button-row input {
+  flex: 1 !important;
+  height: 38px !important;
+}
+
+.input-with-button-row button {
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0 0.625rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
